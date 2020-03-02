@@ -1,6 +1,6 @@
 ---
 {
-  "type": "error",
+  "type": "blog",
   "author": "Rupert Smith",
   "title": "Blah",
   "published": "2020-01-21"

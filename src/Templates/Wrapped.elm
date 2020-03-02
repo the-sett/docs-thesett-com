@@ -65,12 +65,12 @@ head metadata =
                 { canonicalUrlOverride = Nothing
                 , siteName = "www.thesett.com"
                 , image =
-                    { url = meta.image
-                    , alt = meta.description
+                    { url = images.iconPng
+                    , alt = meta.title
                     , dimensions = Nothing
                     , mimeType = Nothing
                     }
-                , description = meta.description
+                , description = meta.title
                 , locale = Nothing
                 , title = meta.title
                 }
@@ -170,7 +170,6 @@ pageView responsiveStyle siteMetadata page model viewForPage =
         Metadata.Article metadata ->
             div []
                 [ titleView responsiveStyle metadata.title
-                , articleImageView responsiveStyle metadata.image
                 , viewForPage
                 ]
 
