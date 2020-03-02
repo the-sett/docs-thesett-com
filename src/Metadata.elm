@@ -1,4 +1,4 @@
-module Metadata exposing (ArticleMetadata, Metadata(..), decoder)
+module Metadata exposing (ErrorMetadata, Metadata(..), decoder)
 
 import Data.Author
 import Date exposing (Date)
@@ -10,11 +10,11 @@ import Pages.ImagePath as ImagePath exposing (ImagePath)
 
 
 type Metadata
-    = Article ArticleMetadata
-    | BlogIndex
+    = Error ErrorMetadata
+    | ErrorIndex
 
 
-type alias ArticleMetadata =
+type alias ErrorMetadata =
     { title : String
     , published : Date
     , author : Data.Author.Author
@@ -28,10 +28,10 @@ decoder =
             (\pageType ->
                 case pageType of
                     "blog-index" ->
-                        Decode.succeed BlogIndex
+                        Decode.succeed ErrorIndex
 
                     "blog" ->
-                        Decode.map4 ArticleMetadata
+                        Decode.map4 ErrorMetadata
                             (Decode.field "title" Decode.string)
                             (Decode.field "published"
                                 (Decode.string
@@ -51,7 +51,7 @@ decoder =
                                 |> Decode.maybe
                                 |> Decode.map (Maybe.withDefault False)
                             )
-                            |> Decode.map Article
+                            |> Decode.map Error
 
                     _ ->
                         Decode.fail <| "Unexpected page type " ++ pageType

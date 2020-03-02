@@ -44,7 +44,7 @@ view responsiveStyle siteMetadata page =
 head : Metadata -> List (Head.Tag Pages.PathKey)
 head metadata =
     case metadata of
-        Metadata.Article meta ->
+        Metadata.Error meta ->
             Seo.summaryLarge
                 { canonicalUrlOverride = Nothing
                 , siteName = "www.thesett.com"
@@ -66,7 +66,7 @@ head metadata =
                     , expirationTime = Nothing
                     }
 
-        Metadata.BlogIndex ->
+        Metadata.ErrorIndex ->
             Seo.summaryLarge
                 { canonicalUrlOverride = Nothing
                 , siteName = "www.thesett.com"
@@ -91,10 +91,10 @@ siteTagline =
 title : Metadata -> String
 title frontmatter =
     case frontmatter of
-        Metadata.Article metadata ->
+        Metadata.Error metadata ->
             metadata.title
 
-        Metadata.BlogIndex ->
+        Metadata.ErrorIndex ->
             "thesett knowledge articles"
 
 
@@ -107,13 +107,13 @@ pageView :
     -> Html Msg
 pageView responsiveStyle siteMetadata page model viewForPage =
     case page.frontmatter of
-        Metadata.Article metadata ->
+        Metadata.Error metadata ->
             div []
                 [ titleView responsiveStyle metadata.title
                 , viewForPage
                 ]
 
-        Metadata.BlogIndex ->
+        Metadata.ErrorIndex ->
             --, Index.view siteMetadata
             div [] []
 
