@@ -44,22 +44,6 @@ view responsiveStyle siteMetadata page =
 head : Metadata -> List (Head.Tag Pages.PathKey)
 head metadata =
     case metadata of
-        Metadata.Page meta ->
-            Seo.summaryLarge
-                { canonicalUrlOverride = Nothing
-                , siteName = "www.thesett.com"
-                , image =
-                    { url = images.iconPng
-                    , alt = "thesett logo"
-                    , dimensions = Nothing
-                    , mimeType = Nothing
-                    }
-                , description = siteTagline
-                , locale = Nothing
-                , title = meta.title
-                }
-                |> Seo.website
-
         Metadata.Article meta ->
             Seo.summaryLarge
                 { canonicalUrlOverride = Nothing
@@ -80,41 +64,6 @@ head metadata =
                     , publishedTime = Just (Date.toIsoString meta.published)
                     , modifiedTime = Nothing
                     , expirationTime = Nothing
-                    }
-
-        Metadata.Author meta ->
-            let
-                ( firstName, lastName ) =
-                    case meta.name |> String.split " " of
-                        [ first, last ] ->
-                            ( first, last )
-
-                        [ first, middle, last ] ->
-                            ( first ++ " " ++ middle, last )
-
-                        [] ->
-                            ( "", "" )
-
-                        _ ->
-                            ( meta.name, "" )
-            in
-            Seo.summary
-                { canonicalUrlOverride = Nothing
-                , siteName = "www.thesett.com"
-                , image =
-                    { url = meta.avatar
-                    , alt = meta.name ++ "'s articles."
-                    , dimensions = Nothing
-                    , mimeType = Nothing
-                    }
-                , description = meta.bio
-                , locale = Nothing
-                , title = meta.name ++ "'s articles."
-                }
-                |> Seo.profile
-                    { firstName = firstName
-                    , lastName = lastName
-                    , username = Nothing
                     }
 
         Metadata.BlogIndex ->
@@ -142,14 +91,8 @@ siteTagline =
 title : Metadata -> String
 title frontmatter =
     case frontmatter of
-        Metadata.Page metadata ->
-            metadata.title
-
         Metadata.Article metadata ->
             metadata.title
-
-        Metadata.Author author ->
-            author.name
 
         Metadata.BlogIndex ->
             "thesett knowledge articles"
@@ -164,17 +107,11 @@ pageView :
     -> Html Msg
 pageView responsiveStyle siteMetadata page model viewForPage =
     case page.frontmatter of
-        Metadata.Page metadata ->
-            viewForPage
-
         Metadata.Article metadata ->
             div []
                 [ titleView responsiveStyle metadata.title
                 , viewForPage
                 ]
-
-        Metadata.Author author ->
-            viewForPage
 
         Metadata.BlogIndex ->
             --, Index.view siteMetadata

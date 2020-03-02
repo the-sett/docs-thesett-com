@@ -1,4 +1,4 @@
-module Metadata exposing (ArticleMetadata, Metadata(..), PageMetadata, decoder)
+module Metadata exposing (ArticleMetadata, Metadata(..), decoder)
 
 import Data.Author
 import Date exposing (Date)
@@ -10,9 +10,7 @@ import Pages.ImagePath as ImagePath exposing (ImagePath)
 
 
 type Metadata
-    = Page PageMetadata
-    | Article ArticleMetadata
-    | Author Data.Author.Author
+    = Article ArticleMetadata
     | BlogIndex
 
 
@@ -24,28 +22,13 @@ type alias ArticleMetadata =
     }
 
 
-type alias PageMetadata =
-    { title : String }
-
-
 decoder =
     Decode.field "type" Decode.string
         |> Decode.andThen
             (\pageType ->
                 case pageType of
-                    "page" ->
-                        Decode.field "title" Decode.string
-                            |> Decode.map (\title -> Page { title = title })
-
                     "blog-index" ->
                         Decode.succeed BlogIndex
-
-                    "author" ->
-                        Decode.map3 Data.Author.Author
-                            (Decode.field "name" Decode.string)
-                            (Decode.field "avatar" imageDecoder)
-                            (Decode.field "bio" Decode.string)
-                            |> Decode.map Author
 
                     "blog" ->
                         Decode.map4 ArticleMetadata

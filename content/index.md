@@ -2,9 +2,9 @@
 {
   "type": "blog",
   "author": "Rupert Smith",
-  "title": "Blah",
+  "title": "Missing definition",
   "published": "2020-01-21"
 }
 ---
 
-Blah blah blah.
+This error occurs when a type refers to a name that has not been defined.
