@@ -17,8 +17,6 @@ type Metadata
 type alias ErrorMetadata =
     { title : String
     , published : Date
-    , author : Data.Author.Author
-    , draft : Bool
     }
 
 
@@ -27,11 +25,11 @@ decoder =
         |> Decode.andThen
             (\pageType ->
                 case pageType of
-                    "blog-index" ->
+                    "error-index" ->
                         Decode.succeed ErrorIndex
 
-                    "blog" ->
-                        Decode.map4 ErrorMetadata
+                    "error" ->
+                        Decode.map2 ErrorMetadata
                             (Decode.field "title" Decode.string)
                             (Decode.field "published"
                                 (Decode.string
@@ -45,11 +43,6 @@ decoder =
                                                     Decode.fail error
                                         )
                                 )
-                            )
-                            (Decode.field "author" Data.Author.decoder)
-                            (Decode.field "draft" Decode.bool
-                                |> Decode.maybe
-                                |> Decode.map (Maybe.withDefault False)
                             )
                             |> Decode.map Error
 
