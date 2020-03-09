@@ -12,7 +12,8 @@ import Pages.Document
 markupDocument : ( String, Pages.Document.DocumentHandler Metadata (Html msg) )
 markupDocument =
     Pages.Document.parser
-        { extension = "emu"
+        { -- Ideally .emu but the file watch does not pick up changes.
+          extension = "md"
         , metadata = Metadata.decoder
         , body =
             \source ->

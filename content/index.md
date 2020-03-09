@@ -7,5 +7,3 @@
 }
 ---
 blah
-
-[typesetting industry]{link| url = http://mechanical-elephant.com }

@@ -11,7 +11,6 @@ import Html
 import Html.Styled exposing (Html, div, toUnstyled)
 import Layouts.Default
 import Layouts.Zero
-import Markdown
 import Markup
 import Metadata exposing (Metadata)
 import Pages exposing (images, pages)
@@ -35,7 +34,7 @@ main =
         , update = update
         , onPageChange = \_ -> State.PageChanged
         , view = view
-        , documents = [ Markup.markupDocument, Markdown.markdownDocument ]
+        , documents = [ Markup.markupDocument ]
         , manifest = manifest
         , canonicalSiteUrl = canonicalSiteUrl
         , internals = Pages.internals
