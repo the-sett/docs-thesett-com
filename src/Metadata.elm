@@ -3,6 +3,7 @@ module Metadata exposing (ErrorMetadata, Metadata(..), decoder)
 import Data.Author
 import Date exposing (Date)
 import Dict exposing (Dict)
+import Errors exposing (Error)
 import Json.Decode as Decode exposing (Decoder)
 import List.Extra
 import Pages
@@ -17,7 +18,13 @@ type Metadata
 type alias ErrorMetadata =
     { title : String
     , published : Date
+    , code : Int
+    , error : Error
     }
+
+
+errorCatalogue =
+    Dict.empty
 
 
 decoder =
@@ -29,7 +36,7 @@ decoder =
                         Decode.succeed ErrorIndex
 
                     "error" ->
-                        Decode.map2 ErrorMetadata
+                        Decode.map4 ErrorMetadata
                             (Decode.field "title" Decode.string)
                             (Decode.field "published"
                                 (Decode.string
@@ -44,6 +51,8 @@ decoder =
                                         )
                                 )
                             )
+                            (Decode.succeed 0)
+                            (Decode.succeed Errors.defaultError)
                             |> Decode.map Error
 
                     _ ->

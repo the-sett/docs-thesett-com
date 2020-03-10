@@ -1,6 +1,7 @@
 module Markup exposing (..)
 
 import Css
+import Errors exposing (Error(..))
 import Html.Styled as Html exposing (Html, div, form, h1, h4, img, label, p, pre, span, styled, text, toUnstyled)
 import Html.Styled.Attributes as Attr
 import Mark
@@ -18,8 +19,8 @@ markupDocument =
         , body =
             \source ->
                 case Mark.compile document source of
-                    Mark.Success body ->
-                        Html.div [] body |> Ok
+                    Mark.Success success ->
+                        Html.div [] (success Errors.defaultError) |> Ok
 
                     Mark.Almost { result, errors } ->
                         viewErrors errors |> Html.text |> Ok
@@ -35,34 +36,37 @@ viewErrors errors =
         |> String.join "\n"
 
 
-document : Mark.Document (List (Html msg))
+document : Mark.Document (Error -> List (Html msg))
 document =
-    Mark.manyOf
-        [ code
-        , Mark.map (Html.p []) text
-        ]
-        |> Mark.document identity
+    Mark.manyOf [ text ]
+        |> Mark.document
+            (\parts -> \val -> List.map (\part -> part val) parts)
 
 
-text : Mark.Block (List (Html msg))
+text : Mark.Block (Error -> Html msg)
 text =
     Mark.textWith
-        { view =
-            \styles string ->
-                viewText styles string
+        { view = \styles string -> renderText ( styles, string )
         , replacements = Mark.commonReplacements
         , inlines =
             [ Mark.annotation "link"
                 (\texts url ->
-                    Html.a [ Attr.href url ] (List.map (\( left, right ) -> viewText left right) texts)
+                    Html.a [ Attr.href url ] (List.map renderText texts)
                 )
                 |> Mark.field "url" Mark.string
+            , Mark.annotation "source"
+                (\styles errCode -> Html.text "blah")
+                |> Mark.field "pos" Mark.int
             ]
         }
+        |> Mark.map
+            (\para -> \(Error err) -> Html.p [] (Html.text (err.title ++ " : ") :: para))
 
 
-viewText : Mark.Styles -> String -> Html msg
-viewText styles string =
+{-| Render text with basic markdown styling applied.
+-}
+renderText : ( Mark.Styles, String ) -> Html msg
+renderText ( styles, string ) =
     if styles.bold || styles.italic || styles.strike then
         Html.span
             [ Attr.classList
@@ -75,10 +79,3 @@ viewText styles string =
 
     else
         Html.text string
-
-
-code : Mark.Block (Html msg)
-code =
-    Mark.block "Code"
-        (\str -> Html.pre [] [ Html.text str ])
-        Mark.string
