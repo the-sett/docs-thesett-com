@@ -50,18 +50,18 @@ head metadata =
                 , siteName = "www.thesett.com"
                 , image =
                     { url = images.iconPng
-                    , alt = meta.title
+                    , alt = "title"
                     , dimensions = Nothing
                     , mimeType = Nothing
                     }
-                , description = meta.title
+                , description = "title"
                 , locale = Nothing
-                , title = meta.title
+                , title = "title"
                 }
                 |> Seo.article
                     { tags = []
                     , section = Nothing
-                    , publishedTime = Just (Date.toIsoString meta.published)
+                    , publishedTime = Nothing
                     , modifiedTime = Nothing
                     , expirationTime = Nothing
                     }
@@ -92,10 +92,10 @@ title : Metadata -> String
 title frontmatter =
     case frontmatter of
         Metadata.Error metadata ->
-            metadata.title
+            "title"
 
         Metadata.ErrorIndex ->
-            "thesett knowledge articles"
+            "error catalogue"
 
 
 pageView :
@@ -108,22 +108,10 @@ pageView :
 pageView responsiveStyle siteMetadata page model viewForPage =
     case page.frontmatter of
         Metadata.Error metadata ->
-            div []
-                [ titleView responsiveStyle metadata.title
-                , viewForPage
-                ]
+            div [] [ viewForPage ]
 
         Metadata.ErrorIndex ->
-            --, Index.view siteMetadata
             div [] []
-
-
-titleView : ResponsiveStyle -> String -> Html msg
-titleView responsiveStyle val =
-    styled div
-        [ Css.textAlign Css.center ]
-        []
-        [ h1 [] [ text val ] ]
 
 
 articleImageView : ResponsiveStyle -> ImagePath Pages.PathKey -> Html msg

@@ -16,9 +16,7 @@ type Metadata
 
 
 type alias ErrorMetadata =
-    { title : String
-    , published : Date
-    , code : Int
+    { code : Int
     , error : Error
     }
 
@@ -36,22 +34,8 @@ decoder =
                         Decode.succeed ErrorIndex
 
                     "error" ->
-                        Decode.map4 ErrorMetadata
-                            (Decode.field "title" Decode.string)
-                            (Decode.field "published"
-                                (Decode.string
-                                    |> Decode.andThen
-                                        (\isoString ->
-                                            case Date.fromIsoString isoString of
-                                                Ok date ->
-                                                    Decode.succeed date
-
-                                                Err error ->
-                                                    Decode.fail error
-                                        )
-                                )
-                            )
-                            (Decode.succeed 0)
+                        Decode.map2 ErrorMetadata
+                            (Decode.field "code" Decode.int)
                             (Decode.succeed Errors.defaultError)
                             |> Decode.map Error
 

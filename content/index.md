@@ -1,17 +1,19 @@
 ---
 {
   "type": "error",
-  "title": "Missing definition",
-  "published": "2020-01-21"
+  "code": 201
 }
 ---
+You got it wrong, maybe you aren't as clever as you think?
 
-You got this error because you are an idiot and did not RTFM.
+|> Source
+    label = The first time you screwed up:
+    pos = 0
+    source = "source code location 0"
 
-[Quoted source location 1]{source|pos = 0 }
-
-and then here you did it again:
-
-[Quoted source location 2]{source|pos = 1 }
+|> Source
+    label = Then here you did it again:
+    pos = 0
+    source = source code location 1
 
 Fix this by reading the manual. Idiot.
