@@ -1,7 +1,8 @@
 module Markup exposing (..)
 
 import Css
-import Errors exposing (Error(..))
+import Dict
+import Errors exposing (Error)
 import Html.Styled as Html exposing (Html, div, form, h1, h4, img, label, p, pre, span, styled, text, toUnstyled)
 import Html.Styled.Attributes as Attr
 import Mark
@@ -12,13 +13,36 @@ import Pages.Document
 
 markupDocument : ( String, Pages.Document.DocumentHandler Metadata (Html msg) )
 markupDocument =
+    let
+        error =
+            { code = -1
+            , title = Errors.rudeExampleErrorMessage.title
+            , body = Errors.rudeExampleErrorMessage.body
+            , sources =
+                [ { lines = Dict.fromList [ ( 0, "Source code position 0" ) ]
+                  , highlight =
+                        Just
+                            { start = { row = 0, col = 0 }
+                            , end = { row = 0, col = 3 }
+                            }
+                  }
+                , { lines = Dict.fromList [ ( 0, "Source code position 1" ) ]
+                  , highlight =
+                        Just
+                            { start = { row = 0, col = 0 }
+                            , end = { row = 0, col = 3 }
+                            }
+                  }
+                ]
+            }
+    in
     Pages.Document.parser
         { -- Ideally .emu but the file watch does not pick up changes.
           extension = "md"
         , metadata = Metadata.decoder
         , body =
             \source ->
-                case Mark.compile (Errors.document Errors.htmlRenderer Errors.defaultError) source of
+                case Mark.compile (Errors.document Errors.htmlRenderer error) source of
                     Mark.Success success ->
                         Html.div [] success |> Ok
 
