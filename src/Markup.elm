@@ -11,32 +11,32 @@ import Metadata exposing (ErrorMetadata, Metadata)
 import Pages.Document
 
 
+error =
+    { code = -1
+    , title = "Unhandled Error"
+    , body = ""
+    , args = Dict.fromList [ ( "intelligence", "clever" ) ]
+    , sources =
+        [ { lines = Dict.fromList [ ( 0, "Source code position 0" ) ]
+          , highlight =
+                Just
+                    { start = { row = 0, col = 0 }
+                    , end = { row = 0, col = 3 }
+                    }
+          }
+        , { lines = Dict.fromList [ ( 0, "Source code position 1" ) ]
+          , highlight =
+                Just
+                    { start = { row = 0, col = 0 }
+                    , end = { row = 0, col = 3 }
+                    }
+          }
+        ]
+    }
+
+
 markupDocument : ( String, Pages.Document.DocumentHandler Metadata (Html msg) )
 markupDocument =
-    let
-        error =
-            { code = -1
-            , title = Errors.rudeExampleErrorMessage.title
-            , body = Errors.rudeExampleErrorMessage.body
-            , args = Dict.fromList [ ( "intelligence", "clever" ) ]
-            , sources =
-                [ { lines = Dict.fromList [ ( 0, "Source code position 0" ) ]
-                  , highlight =
-                        Just
-                            { start = { row = 0, col = 0 }
-                            , end = { row = 0, col = 3 }
-                            }
-                  }
-                , { lines = Dict.fromList [ ( 0, "Source code position 1" ) ]
-                  , highlight =
-                        Just
-                            { start = { row = 0, col = 0 }
-                            , end = { row = 0, col = 3 }
-                            }
-                  }
-                ]
-            }
-    in
     Pages.Document.parser
         { -- Ideally .emu but the file watch does not pick up changes.
           extension = "md"
