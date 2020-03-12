@@ -4,7 +4,7 @@
   "code": 201
 }
 ---
-You got it wrong, maybe you aren't as clever as you think?
+You got it wrong, maybe you aren't as []{arg| key = intelligence } as you think?
 
 |> Source
     label = The first time you screwed up:

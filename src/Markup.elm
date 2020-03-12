@@ -18,6 +18,7 @@ markupDocument =
             { code = -1
             , title = Errors.rudeExampleErrorMessage.title
             , body = Errors.rudeExampleErrorMessage.body
+            , args = Dict.fromList [ ( "intelligence", "clever" ) ]
             , sources =
                 [ { lines = Dict.fromList [ ( 0, "Source code position 0" ) ]
                   , highlight =
