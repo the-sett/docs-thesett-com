@@ -2,7 +2,7 @@ module Markup exposing (..)
 
 import Css
 import Dict
-import Errors exposing (Error, SourceLines)
+import Errors exposing (Error, ErrorMessage, SourceLines)
 import Html.Styled as Html exposing (Html, div, form, h1, h4, img, label, p, pre, span, styled, text, toUnstyled)
 import Html.Styled.Attributes as Attr
 import Mark
@@ -47,6 +47,24 @@ Please fix it. This is not a helpful error message.
     }
 
 
+exampleMsg =
+    { title = "Unhandled Error"
+    , body = """
+There was an error in your code.
+
+|> Source
+    label = Look, here it is:
+    pos = 0
+
+|> Source
+    label = And again here:
+    pos = 1
+
+Please fix it. This is not a helpful error message.
+"""
+    }
+
+
 markupDocument : ( String, Pages.Document.DocumentHandler Metadata (Html msg) )
 markupDocument =
     Pages.Document.parser
@@ -55,7 +73,7 @@ markupDocument =
         , metadata = Metadata.decoder
         , body =
             \src ->
-                case Mark.compile (document example) src of
+                case Mark.compile (document exampleMsg) src of
                     Mark.Success success ->
                         Html.div [] success |> Ok
 
@@ -77,26 +95,36 @@ viewErrors errors =
 -- Structural formatting of error knowledge-base articles as elm-markup.
 
 
-document : Error -> Mark.Document (List (Html msg))
-document error =
-    let
-        render parts =
-            case parts of
-                ErrorDocs docs ->
-                    docs
-
-                Source src ->
-                    htmlError (Debug.log "error" error)
-
-                Params _ ->
-                    Html.text ""
-    in
+document : ErrorMessage -> Mark.Document (List (Html msg))
+document errMsg =
     Mark.manyOf
         [ errorDocs
         , source
         , params
         ]
-        |> Mark.document (List.map render)
+        |> Mark.document renderParts
+
+
+renderParts : List (Parts msg) -> List (Html msg)
+renderParts parts =
+    let
+        ( docs, _, _ ) =
+            List.foldr
+                (\part ( docsAccum, src, prms ) ->
+                    case part of
+                        ErrorDocs errDocs ->
+                            ( errDocs :: docsAccum, src, prms )
+
+                        Source val ->
+                            ( docsAccum, Just val, prms )
+
+                        Params p ->
+                            ( docsAccum, src, p )
+                )
+                ( [], Nothing, [] )
+                parts
+    in
+    docs
 
 
 type Parts msg
