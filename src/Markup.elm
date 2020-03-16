@@ -74,7 +74,12 @@ document error =
                     docs
 
                 Source src ->
-                    Html.pre [] [ Html.text src ]
+                    Html.styled Html.div
+                        [ Css.borderLeft3 (Css.px 4) Css.solid (Css.rgb 211 14 17)
+                        , Css.paddingLeft (Css.px 10)
+                        ]
+                        []
+                        [ Html.pre [] [ Html.text src ] ]
 
                 Params _ ->
                     Html.text ""
