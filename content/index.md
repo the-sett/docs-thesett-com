@@ -1,17 +1,20 @@
 ---
 {
   "type": "error",
-  "code": 201
+  "code": 201,
+  "source":
+["Line 1"
+,"Line 2"
+],
+  "highlight": [
+      "(0,0)-(0, 5)",
+      "(1,3)-(1, 8)"
+  ],
+  "args": [ { "intelligence": "clever" } ]
 }
 ---
-You got it wrong, maybe you aren't as []{arg| key = intelligence } as you think?
+Some general information about the error.
 
-|> Source
-    label = The first time you screwed up:
-    pos = 0
+|> Quote
 
-|> Source
-    label = Then here you did it again:
-    pos = 1
-
-Fix this by reading the manual. Idiot.
+Blah blah blah blah blah.
