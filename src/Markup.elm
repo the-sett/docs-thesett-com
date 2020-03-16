@@ -14,7 +14,19 @@ import Pages.Document
 example =
     { code = -1
     , title = "Unhandled Error"
-    , body = ""
+    , body = """
+There was an error in your code.
+
+|> Source
+    label = Look, here it is:
+    pos = 0
+
+|> Source
+    label = And again here:
+    pos = 1
+
+Please fix it. This is not a helpful error message.
+"""
     , args = Dict.fromList [ ( "intelligence", "clever" ) ]
     , sources =
         [ { lines = Dict.fromList [ ( 0, "Source code position 0" ) ]
@@ -74,12 +86,7 @@ document error =
                     docs
 
                 Source src ->
-                    Html.styled Html.div
-                        [ Css.borderLeft3 (Css.px 4) Css.solid (Css.rgb 211 14 17)
-                        , Css.paddingLeft (Css.px 10)
-                        ]
-                        []
-                        [ Html.pre [] [ Html.text src ] ]
+                    htmlError (Debug.log "error" error)
 
                 Params _ ->
                     Html.text ""
@@ -132,6 +139,24 @@ renderList (Mark.Enumerated list) =
 
 
 -- Styling
+
+
+htmlError : Error -> Html msg
+htmlError error =
+    case Mark.compile (Errors.document Errors.htmlRenderer error) error.body of
+        Mark.Success success ->
+            Html.styled Html.div
+                [ Css.borderLeft3 (Css.px 4) Css.solid (Css.rgb 0 0 0)
+                , Css.paddingLeft (Css.px 10)
+                ]
+                []
+                success
+
+        Mark.Almost { result, errors } ->
+            viewErrors errors |> Html.text
+
+        Mark.Failure errors ->
+            viewErrors errors |> Html.text
 
 
 htmlRenderTitle : String -> Html msg
