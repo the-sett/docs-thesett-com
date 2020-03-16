@@ -18,7 +18,6 @@ type Metadata
 type alias ErrorMetadata =
     { code : Int
     , error : Error
-    , source : List String
     }
 
 
@@ -35,10 +34,9 @@ decoder =
                         Decode.succeed ErrorIndex
 
                     "error" ->
-                        Decode.map3 ErrorMetadata
+                        Decode.map2 ErrorMetadata
                             (Decode.field "code" Decode.int)
                             (Decode.succeed Errors.defaultError)
-                            (Decode.field "source" (Decode.list Decode.string))
                             |> Decode.map Error
 
                     _ ->

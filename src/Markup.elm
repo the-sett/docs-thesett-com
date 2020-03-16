@@ -42,8 +42,8 @@ markupDocument =
           extension = "md"
         , metadata = Metadata.decoder
         , body =
-            \source ->
-                case Mark.compile (document example) source of
+            \src ->
+                case Mark.compile (document example) src of
                     Mark.Success success ->
                         Html.div [] success |> Ok
 
@@ -61,16 +61,39 @@ viewErrors errors =
         |> String.join "\n"
 
 
+
+-- Structural formatting of error knowledge-base articles as elm-markup.
+
+
 document : Error -> Mark.Document (List (Html msg))
 document error =
+    let
+        render parts =
+            case parts of
+                ErrorDocs docs ->
+                    docs
+
+                Source src ->
+                    Html.pre [] [ Html.text src ]
+
+                Params _ ->
+                    Html.text ""
+    in
     Mark.manyOf
         [ errorDocs
-        , quoteSource error
+        , source
+        , params
         ]
-        |> Mark.document (\parts -> parts)
+        |> Mark.document (List.map render)
 
 
-errorDocs : Mark.Block (Html msg)
+type Parts msg
+    = ErrorDocs (Html msg)
+    | Source String
+    | Params (List String)
+
+
+errorDocs : Mark.Block (Parts msg)
 errorDocs =
     Mark.textWith
         { view = htmlStyleText
@@ -78,13 +101,32 @@ errorDocs =
         , inlines = []
         }
         |> Mark.map htmlTextsToParagraph
+        |> Mark.map ErrorDocs
 
 
-quoteSource : Error -> Mark.Block (Html msg)
-quoteSource error =
-    Mark.record "Quote"
-        (Html.text "quote")
-        |> Mark.toBlock
+source : Mark.Block (Parts msg)
+source =
+    Mark.string
+        |> Mark.block "Source"
+            Source
+
+
+params : Mark.Block (Parts msg)
+params =
+    Mark.tree "Params" renderList Mark.string
+        |> Mark.map Params
+
+
+renderList (Mark.Enumerated list) =
+    let
+        renderItem (Mark.Item item) =
+            String.join "" item.content
+    in
+    List.map renderItem list.items
+
+
+
+-- Styling
 
 
 htmlRenderTitle : String -> Html msg

@@ -1,20 +1,19 @@
 ---
 {
   "type": "error",
-  "code": 201,
-  "source":
-["Line 1"
-,"Line 2"
-],
-  "highlight": [
-      "(0,0)-(0, 5)",
-      "(1,3)-(1, 8)"
-  ],
-  "args": [ { "intelligence": "clever" } ]
+  "code": 201
 }
 ---
-Some general information about the error.
+This error comes up all the time, but don't worry. It looks like this:
 
-|> Quote
+|> Source
+    Line 1
+    Line 2
+    Will actually show whole error message in here.
 
-Blah blah blah blah blah.
+|> Params
+    -- intelligence = clever
+    -- (0,0)-(0, 5)
+    -- (1,3)-(1, 8)
+
+And then you can fix this by just doing...
