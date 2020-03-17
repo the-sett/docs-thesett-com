@@ -39,9 +39,9 @@ markupDocument =
         , metadata = Metadata.decoder
         , body =
             \src ->
-                case Mark.compile (document exampleMsg) src of
+                case Mark.compile document src of
                     Mark.Success success ->
-                        Html.div [] success |> Ok
+                        success exampleMsg |> Html.div [] |> Ok
 
                     Mark.Almost { result, errors } ->
                         viewErrors errors |> Html.text |> Ok
@@ -61,16 +61,16 @@ viewErrors errors =
 -- Structural formatting of error knowledge-base articles as elm-markup.
 
 
-document : ErrorMessage -> Mark.Document (List (Html msg))
-document errMsg =
+document : Mark.Document (ErrorMessage -> List (Html msg))
+document =
     Mark.manyOf
         [ errorDocs
-        , source errMsg
+        , source
         ]
-        |> Mark.document identity
+        |> Mark.document (\parts -> \errMsg -> List.map (\part -> part errMsg) parts)
 
 
-errorDocs : Mark.Block (Html msg)
+errorDocs : Mark.Block (ErrorMessage -> Html msg)
 errorDocs =
     Mark.textWith
         { view = htmlStyleText
@@ -78,12 +78,16 @@ errorDocs =
         , inlines = []
         }
         |> Mark.map htmlTextsToParagraph
+        |> Mark.map (\doc _ -> doc)
 
 
-source : ErrorMessage -> Mark.Block (Html msg)
-source errMsg =
+source : Mark.Block (ErrorMessage -> Html msg)
+source =
     let
         decodeFields code prms pos =
+            { code = code, params = prms, highlights = pos }
+
+        renderFields errMsg code prms pos =
             let
                 paramsDict =
                     Decode.decodeString (Decode.dict Decode.string) prms
@@ -112,6 +116,7 @@ source errMsg =
         |> Mark.field "params" Mark.string
         |> Mark.field "pos" Mark.string
         |> Mark.toBlock
+        |> Mark.map (\doc errMsg -> renderFields errMsg doc.code doc.params doc.highlights)
 
 
 posDecoder : Decoder Region
