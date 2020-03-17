@@ -3,7 +3,7 @@ module Metadata exposing (ErrorMetadata, Metadata(..), decoder)
 import Data.Author
 import Date exposing (Date)
 import Dict exposing (Dict)
-import Errors exposing (Error)
+import Errors exposing (ErrorMessage)
 import Json.Decode as Decode exposing (Decoder)
 import List.Extra
 import Pages
@@ -17,12 +17,30 @@ type Metadata
 
 type alias ErrorMetadata =
     { code : Int
-    , error : Error
+    , errorMsg : ErrorMessage
     }
 
 
 errorCatalogue =
     Dict.empty
+
+
+exampleMsg =
+    { title = "Unhandled Error"
+    , body = """
+There was an error in your code.
+
+|> Source
+    label = Look, here it is:
+    pos = 0
+
+|> Source
+    label = And again here:
+    pos = 1
+
+Please fix it. This is not a helpful error message.
+"""
+    }
 
 
 decoder =
@@ -36,7 +54,7 @@ decoder =
                     "error" ->
                         Decode.map2 ErrorMetadata
                             (Decode.field "code" Decode.int)
-                            (Decode.succeed Errors.defaultError)
+                            (Decode.succeed exampleMsg)
                             |> Decode.map Error
 
                     _ ->

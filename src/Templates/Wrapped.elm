@@ -18,7 +18,7 @@ import Pages.ImagePath as ImagePath exposing (ImagePath)
 import Pages.PagePath as PagePath exposing (PagePath)
 import Responsive exposing (ResponsiveStyle)
 import State exposing (Model, Msg(..))
-import Structure exposing (StaticPage, StaticView, Template)
+import Structure exposing (StaticPage, StaticView, Template, View)
 import Styles exposing (lg, md, sm, xl)
 import TheSett.Buttons as Buttons
 import TheSett.Cards as Cards
@@ -103,12 +103,12 @@ pageView :
     -> List ( PagePath Pages.PathKey, Metadata )
     -> { path : PagePath Pages.PathKey, frontmatter : Metadata }
     -> Model
-    -> Html Msg
+    -> View Msg
     -> Html Msg
 pageView responsiveStyle siteMetadata page model viewForPage =
     case page.frontmatter of
         Metadata.Error metadata ->
-            div [] [ viewForPage ]
+            div [] (viewForPage metadata.errorMsg)
 
         Metadata.ErrorIndex ->
             div [] []

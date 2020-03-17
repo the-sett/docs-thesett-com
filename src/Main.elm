@@ -5,6 +5,7 @@ import Css
 import Css.Global
 import Date
 import Devices
+import Errors exposing (ErrorMessage)
 import Head
 import Head.Seo as Seo
 import Html
@@ -22,11 +23,12 @@ import Pages.PagePath as PagePath exposing (PagePath)
 import Pages.Platform exposing (Page)
 import Pages.StaticHttp as StaticHttp
 import State
+import Structure exposing (View)
 import Templates.Wrapped
 import TheSett.Laf as Laf
 
 
-main : Pages.Platform.Program Model Msg Metadata (Html Msg)
+main : Pages.Platform.Program Model Msg Metadata (View Msg)
 main =
     Pages.Platform.application
         { init = \_ -> init
@@ -110,7 +112,7 @@ view :
         }
     ->
         StaticHttp.Request
-            { view : Model -> Html Msg -> { title : String, body : Html.Html Msg }
+            { view : Model -> View Msg -> { title : String, body : Html.Html Msg }
             , head : List (Head.Tag Pages.PathKey)
             }
 view siteMetadata page =

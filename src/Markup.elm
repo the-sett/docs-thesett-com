@@ -11,27 +11,10 @@ import Mark.Error
 import Metadata exposing (ErrorMetadata, Metadata)
 import Pages.Document
 import SourcePos exposing (Region, RowCol, SourceLines)
+import Structure exposing (View)
 
 
-exampleMsg =
-    { title = "Unhandled Error"
-    , body = """
-There was an error in your code.
-
-|> Source
-    label = Look, here it is:
-    pos = 0
-
-|> Source
-    label = And again here:
-    pos = 1
-
-Please fix it. This is not a helpful error message.
-"""
-    }
-
-
-markupDocument : ( String, Pages.Document.DocumentHandler Metadata (Html msg) )
+markupDocument : ( String, Pages.Document.DocumentHandler Metadata (View msg) )
 markupDocument =
     Pages.Document.parser
         { -- Ideally .emu but the file watch does not pick up changes.
@@ -41,20 +24,14 @@ markupDocument =
             \src ->
                 case Mark.compile document src of
                     Mark.Success success ->
-                        success exampleMsg |> Html.div [] |> Ok
+                        success |> Ok
 
                     Mark.Almost { result, errors } ->
-                        viewErrors errors |> Html.text |> Ok
+                        viewErrors errors |> Err
 
                     Mark.Failure errors ->
-                        viewErrors errors |> Html.text |> Ok
+                        viewErrors errors |> Err
         }
-
-
-viewErrors : List Mark.Error.Error -> String
-viewErrors errors =
-    List.map Mark.Error.toString errors
-        |> String.join "\n"
 
 
 
@@ -135,6 +112,12 @@ posDecoder =
 
 
 -- Styling
+
+
+viewErrors : List Mark.Error.Error -> String
+viewErrors errors =
+    List.map Mark.Error.toString errors
+        |> String.join "\n"
 
 
 htmlError : Error -> Html msg

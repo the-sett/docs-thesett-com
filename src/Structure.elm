@@ -1,11 +1,16 @@
-module Structure exposing (Layout, StaticPage, StaticView, Template)
+module Structure exposing (Layout, StaticPage, StaticView, Template, View)
 
+import Errors exposing (ErrorMessage)
 import Head
 import Html.Styled exposing (Html)
 import Metadata exposing (Metadata)
 import Pages
 import Pages.PagePath as PagePath exposing (PagePath)
 import Responsive exposing (ResponsiveStyle)
+
+
+type alias View msg =
+    ErrorMessage -> List (Html msg)
 
 
 type alias SiteMetaData =
@@ -18,7 +23,7 @@ type alias Page =
 
 type alias StaticPage msg model =
     { head : List (Head.Tag Pages.PathKey)
-    , view : model -> Html msg -> StaticView msg
+    , view : model -> View msg -> StaticView msg
     }
 
 
