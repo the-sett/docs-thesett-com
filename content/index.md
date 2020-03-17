@@ -6,7 +6,7 @@
 ---
 This error comes up all the time, but don't worry. It looks like this:
 
-|> Source
+|> Error
     code =
         Source code position 0
         Source code position 1

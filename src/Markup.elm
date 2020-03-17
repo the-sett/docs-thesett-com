@@ -65,7 +65,7 @@ document : Mark.Document (ErrorMessage -> List (Html msg))
 document =
     Mark.manyOf
         [ errorDocs
-        , source
+        , quoteError
         ]
         |> Mark.document (\parts -> \errMsg -> List.map (\part -> part errMsg) parts)
 
@@ -81,8 +81,8 @@ errorDocs =
         |> Mark.map (\doc _ -> doc)
 
 
-source : Mark.Block (ErrorMessage -> Html msg)
-source =
+quoteError : Mark.Block (ErrorMessage -> Html msg)
+quoteError =
     let
         decodeFields code prms pos =
             { code = code, params = prms, highlights = pos }
@@ -110,7 +110,7 @@ source =
                 , sources = SourcePos.sourceLinesForRegions lines regions
                 }
     in
-    Mark.record "Source"
+    Mark.record "Error"
         decodeFields
         |> Mark.field "code" Mark.string
         |> Mark.field "params" Mark.string
