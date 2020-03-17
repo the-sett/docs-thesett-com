@@ -2,7 +2,7 @@ module Markup exposing (..)
 
 import Css
 import Dict
-import Errors exposing (Error, ErrorMessage, SourceLines)
+import Errors exposing (Error, ErrorMessage)
 import Html.Styled as Html exposing (Html, div, form, h1, h4, img, label, p, pre, span, styled, text, toUnstyled)
 import Html.Styled.Attributes as Attr
 import Json.Decode as Decode exposing (Decoder)
@@ -10,43 +10,7 @@ import Mark
 import Mark.Error
 import Metadata exposing (ErrorMetadata, Metadata)
 import Pages.Document
-import SourcePos exposing (Region, RowCol)
-
-
-example =
-    { code = -1
-    , title = "Unhandled Error"
-    , body = """
-There was an error in your code.
-
-|> Source
-    label = Look, here it is:
-    pos = 0
-
-|> Source
-    label = And again here:
-    pos = 1
-
-Please fix it. This is not a helpful error message.
-"""
-    , args = Dict.fromList [ ( "intelligence", "clever" ) ]
-    , sources =
-        [ { lines = Dict.fromList [ ( 0, "Source code position 0" ) ]
-          , highlight =
-                Just
-                    { start = { row = 0, col = 0 }
-                    , end = { row = 0, col = 3 }
-                    }
-          }
-        , { lines = Dict.fromList [ ( 0, "Source code position 1" ) ]
-          , highlight =
-                Just
-                    { start = { row = 0, col = 0 }
-                    , end = { row = 0, col = 3 }
-                    }
-          }
-        ]
-    }
+import SourcePos exposing (Region, RowCol, SourceLines)
 
 
 exampleMsg =
@@ -127,10 +91,10 @@ source errMsg =
 
                 regions =
                     Decode.decodeString (Decode.list posDecoder) pos
-                        |> Result.toMaybe
+                        |> Result.withDefault []
 
                 lines =
-                    String.split "\\n" (Debug.log "code" code)
+                    String.split "\n" code
                         |> List.indexedMap Tuple.pair
                         |> Dict.fromList
             in
@@ -139,10 +103,7 @@ source errMsg =
                 , title = errMsg.title
                 , body = errMsg.body
                 , args = paramsDict
-                , sources =
-                    [ { lines = lines, highlight = Nothing }
-                    , { lines = lines, highlight = Nothing }
-                    ]
+                , sources = SourcePos.sourceLinesForRegions lines regions
                 }
     in
     Mark.record "Source"
