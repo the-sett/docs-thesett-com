@@ -159,14 +159,6 @@ htmlError error =
             viewErrors errors |> Html.text
 
 
-htmlRenderTitle : String -> Html msg
-htmlRenderTitle val =
-    Html.styled Html.div
-        [ Css.textTransform Css.uppercase ]
-        []
-        [ Html.h4 [] [ Html.text val ] ]
-
-
 htmlStyleText : Mark.Styles -> String -> Html msg
 htmlStyleText styles string =
     if styles.bold || styles.italic || styles.strike then
@@ -187,11 +179,3 @@ htmlStyleText styles string =
 htmlTextsToParagraph : List (Html msg) -> Html msg
 htmlTextsToParagraph texts =
     Html.p [] texts
-
-
-htmlAnnotatedSource : List (Html msg) -> SourceLines -> Html msg
-htmlAnnotatedSource label lines =
-    Html.div []
-        [ Html.div [] label
-        , Html.pre [] (Dict.values lines.lines |> List.map Html.text)
-        ]
