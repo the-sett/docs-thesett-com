@@ -1,10 +1,12 @@
 module Metadata exposing (ErrorMetadata, Metadata(..), decoder)
 
+import Checker
 import Data.Author
 import Date exposing (Date)
 import Dict exposing (Dict)
 import Errors exposing (ErrorMessage)
 import Json.Decode as Decode exposing (Decoder)
+import L3
 import List.Extra
 import Pages
 import Pages.ImagePath as ImagePath exposing (ImagePath)
@@ -23,23 +25,13 @@ type alias ErrorMetadata =
 
 errorCatalogue =
     Dict.empty
+        |> Dict.union Checker.errorCatalogue
+        |> Dict.union L3.errorCatalogue
 
 
-exampleMsg =
-    { title = "Unhandled Error"
-    , body = """
-There was an error in your code.
-
-|> Source
-    label = Look, here it is:
-    pos = 0
-
-|> Source
-    label = And again here:
-    pos = 1
-
-Please fix it. This is not a helpful error message.
-"""
+defaultErrorMessage =
+    { title = "Error Message Not Found"
+    , body = "The error message being described could not be found."
     }
 
 
@@ -52,9 +44,13 @@ decoder =
                         Decode.succeed ErrorIndex
 
                     "error" ->
-                        Decode.map2 ErrorMetadata
+                        Decode.map
+                            (\code ->
+                                { code = code
+                                , errorMsg = Dict.get code errorCatalogue |> Maybe.withDefault defaultErrorMessage
+                                }
+                            )
                             (Decode.field "code" Decode.int)
-                            (Decode.succeed exampleMsg)
                             |> Decode.map Error
 
                     _ ->
