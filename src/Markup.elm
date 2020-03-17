@@ -38,16 +38,16 @@ markupDocument =
 -- Structural formatting of error knowledge-base articles as elm-markup.
 
 
-document : Mark.Document (ErrorMessage -> List (Html msg))
+document : Mark.Document (ErrorMessage -> Int -> List (Html msg))
 document =
     Mark.manyOf
         [ errorDocs
         , quoteError
         ]
-        |> Mark.document (\parts -> \errMsg -> List.map (\part -> part errMsg) parts)
+        |> Mark.document (\parts errMsg code -> List.map (\part -> part errMsg code) parts)
 
 
-errorDocs : Mark.Block (ErrorMessage -> Html msg)
+errorDocs : Mark.Block (ErrorMessage -> Int -> Html msg)
 errorDocs =
     Mark.textWith
         { view = htmlStyleText
@@ -55,16 +55,16 @@ errorDocs =
         , inlines = []
         }
         |> Mark.map htmlTextsToParagraph
-        |> Mark.map (\doc _ -> doc)
+        |> Mark.map (\doc _ _ -> doc)
 
 
-quoteError : Mark.Block (ErrorMessage -> Html msg)
+quoteError : Mark.Block (ErrorMessage -> Int -> Html msg)
 quoteError =
     let
-        decodeFields code prms pos =
-            { code = code, params = prms, highlights = pos }
+        decodeFields src prms pos =
+            { src = src, params = prms, highlights = pos }
 
-        renderFields errMsg code prms pos =
+        renderFields errMsg code src prms pos =
             let
                 paramsDict =
                     Decode.decodeString (Decode.dict Decode.string) prms
@@ -75,12 +75,12 @@ quoteError =
                         |> Result.withDefault []
 
                 lines =
-                    String.split "\n" code
+                    String.split "\n" src
                         |> List.indexedMap Tuple.pair
                         |> Dict.fromList
             in
             htmlError
-                { code = -1
+                { code = code
                 , title = errMsg.title
                 , body = errMsg.body
                 , args = paramsDict
@@ -93,7 +93,7 @@ quoteError =
         |> Mark.field "params" Mark.string
         |> Mark.field "pos" Mark.string
         |> Mark.toBlock
-        |> Mark.map (\doc errMsg -> renderFields errMsg doc.code doc.params doc.highlights)
+        |> Mark.map (\doc errMsg code -> renderFields errMsg code doc.src doc.params doc.highlights)
 
 
 posDecoder : Decoder Region

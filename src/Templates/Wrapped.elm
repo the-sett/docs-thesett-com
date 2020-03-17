@@ -108,7 +108,7 @@ pageView :
 pageView responsiveStyle siteMetadata page model viewForPage =
     case page.frontmatter of
         Metadata.Error metadata ->
-            div [] (viewForPage metadata.errorMsg)
+            div [] (viewForPage metadata.errorMsg metadata.code)
 
         Metadata.ErrorIndex ->
             div [] []

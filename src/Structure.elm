@@ -10,7 +10,7 @@ import Responsive exposing (ResponsiveStyle)
 
 
 type alias View msg =
-    ErrorMessage -> List (Html msg)
+    ErrorMessage -> Int -> List (Html msg)
 
 
 type alias SiteMetaData =
