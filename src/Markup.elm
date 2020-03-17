@@ -5,10 +5,12 @@ import Dict
 import Errors exposing (Error, ErrorMessage, SourceLines)
 import Html.Styled as Html exposing (Html, div, form, h1, h4, img, label, p, pre, span, styled, text, toUnstyled)
 import Html.Styled.Attributes as Attr
+import Json.Decode as Decode exposing (Decoder)
 import Mark
 import Mark.Error
 import Metadata exposing (ErrorMetadata, Metadata)
 import Pages.Document
+import SourcePos exposing (Region, RowCol)
 
 
 example =
@@ -99,41 +101,12 @@ document : ErrorMessage -> Mark.Document (List (Html msg))
 document errMsg =
     Mark.manyOf
         [ errorDocs
-        , source
-        , params
+        , source errMsg
         ]
-        |> Mark.document renderParts
+        |> Mark.document identity
 
 
-renderParts : List (Parts msg) -> List (Html msg)
-renderParts parts =
-    let
-        ( docs, _, _ ) =
-            List.foldr
-                (\part ( docsAccum, src, prms ) ->
-                    case part of
-                        ErrorDocs errDocs ->
-                            ( errDocs :: docsAccum, src, prms )
-
-                        Source val ->
-                            ( docsAccum, Just val, prms )
-
-                        Params p ->
-                            ( docsAccum, src, p )
-                )
-                ( [], Nothing, [] )
-                parts
-    in
-    docs
-
-
-type Parts msg
-    = ErrorDocs (Html msg)
-    | Source String
-    | Params (List String)
-
-
-errorDocs : Mark.Block (Parts msg)
+errorDocs : Mark.Block (Html msg)
 errorDocs =
     Mark.textWith
         { view = htmlStyleText
@@ -141,28 +114,57 @@ errorDocs =
         , inlines = []
         }
         |> Mark.map htmlTextsToParagraph
-        |> Mark.map ErrorDocs
 
 
-source : Mark.Block (Parts msg)
-source =
-    Mark.string
-        |> Mark.block "Source"
-            Source
-
-
-params : Mark.Block (Parts msg)
-params =
-    Mark.tree "Params" renderList Mark.string
-        |> Mark.map Params
-
-
-renderList (Mark.Enumerated list) =
+source : ErrorMessage -> Mark.Block (Html msg)
+source errMsg =
     let
-        renderItem (Mark.Item item) =
-            String.join "" item.content
+        decodeFields code prms pos =
+            let
+                paramsDict =
+                    Decode.decodeString (Decode.dict Decode.string) prms
+                        |> Result.withDefault Dict.empty
+
+                regions =
+                    Decode.decodeString (Decode.list posDecoder) pos
+                        |> Result.toMaybe
+
+                lines =
+                    String.split "\\n" (Debug.log "code" code)
+                        |> List.indexedMap Tuple.pair
+                        |> Dict.fromList
+            in
+            htmlError
+                { code = -1
+                , title = errMsg.title
+                , body = errMsg.body
+                , args = paramsDict
+                , sources =
+                    [ { lines = lines, highlight = Nothing }
+                    , { lines = lines, highlight = Nothing }
+                    ]
+                }
     in
-    List.map renderItem list.items
+    Mark.record "Source"
+        decodeFields
+        |> Mark.field "code" Mark.string
+        |> Mark.field "params" Mark.string
+        |> Mark.field "pos" Mark.string
+        |> Mark.toBlock
+
+
+posDecoder : Decoder Region
+posDecoder =
+    Decode.map4
+        (\r1 c1 r2 c2 ->
+            { start = { row = r1, col = c1 }
+            , end = { row = r2, col = c2 }
+            }
+        )
+        (Decode.field "r1" Decode.int)
+        (Decode.field "c1" Decode.int)
+        (Decode.field "r2" Decode.int)
+        (Decode.field "c2" Decode.int)
 
 
 
